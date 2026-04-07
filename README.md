@@ -1,10 +1,11 @@
 # Binary Reverse Engineering Plugin
 
-Reverse engineer ELF binaries from embedded devices using radare2, Ghidra, GDB, and QEMU.
+You pulled a binary off an embedded device. It's an ELF, probably ARM, and you need to figure out what it does. Binary RE gives Claude the tools to help — radare2 for disassembly, Ghidra for decompilation, GDB for dynamic analysis, QEMU for emulation — driven by hypothesis-testing, not blind exploration.
 
 ## Installation
 
 ```bash
+/plugin marketplace add 2389-research/claude-plugins
 /plugin install binary-re@2389-research
 ```
 
@@ -95,6 +96,8 @@ The skill asks for confirmation before:
 - [CLAUDE.md](./CLAUDE.md) -- detailed skill reference
 - [skills/SKILL.md](./skills/SKILL.md) -- full workflow documentation
 
-## License
+---
 
-MIT
+If Binary RE helped you crack a firmware blob, a ⭐ helps us know it's landing.
+
+Built by [2389](https://2389.ai) · Part of the [Claude Code plugin marketplace](https://github.com/2389-research/claude-plugins)
