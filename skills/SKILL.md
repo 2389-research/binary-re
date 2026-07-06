@@ -1,6 +1,6 @@
 ---
 name: binary-re
-description: This skill should be used when analyzing binaries, executables, or bytecode to understand what they do or how they work. Triggers on "binary", "executable", "ELF", "what does this do", "reverse engineer", "disassemble", "decompile", "pyc file", "python bytecode", "analyze binary", "figure out", "marshal". Routes to sub-skills for triage, static analysis, dynamic analysis, synthesis, or tool setup.
+description: "Analyzes ELF binaries, executables, and firmware images to understand behavior without source code; coordinates sub-skills binary-re:triage, binary-re:static-analysis, binary-re:dynamic-analysis, binary-re:synthesis, and binary-re:tool-setup. Use when working with a binary, executable, or ELF file; asked to reverse engineer, disassemble, decompile, or figure out what something does; targeting ARM64, ARMv7, x86_64, or MIPS; or analyzing Python bytecode (.pyc, marshal). For Python bytecode analysis, see docs/python-bytecode-re.md."
 ---
 
 # Binary Reverse Engineering
@@ -41,7 +41,7 @@ r2 -qc 'pdg?' - 2>/dev/null | grep -q Usage && echo "r2ghidra OK" || echo "r2ghi
 | Host Platform | Method | Setup Required |
 |---------------|--------|----------------|
 | Linux x86_64 | Native QEMU | `apt install qemu-user` |
-| macOS (any) | Docker + binfmt | See `binary-re-tool-setup` skill |
+| macOS (any) | Docker + binfmt | See `binary-re:tool-setup` skill |
 | Windows | WSL2 | Use Linux method inside WSL |
 
 **If dynamic tools unavailable:** Proceed with static-only analysis, note reduced confidence in synthesis phase.
@@ -210,8 +210,9 @@ DECISION: {choice} (rationale: {why})
 User: "Continue analyzing that thermostat binary"
 
 Claude:
-1. Invoke episodic-memory:search-conversations
+1. If the episodic-memory plugin is available, invoke episodic-memory:search-conversations
    Query: "[BINARY-RE] thermostat"
+   Otherwise, ask the user what was found in the previous session.
 2. Retrieve previous session findings
 3. Summarize: "Last session identified ARM32/musl, found network
    functions. We were about to run dynamic analysis."
@@ -233,16 +234,16 @@ Claude:
 For typical unknown binary analysis:
 
 ```
-1. Triage (binary-re-triage)
+1. Triage (binary-re:triage)
    └─ Architecture, ABI, dependencies, capabilities
 
-2. Static Analysis (binary-re-static-analysis)
+2. Static Analysis (binary-re:static-analysis)
    └─ Functions, strings, xrefs, decompilation
 
-3. Dynamic Analysis (binary-re-dynamic-analysis) - if safe
+3. Dynamic Analysis (binary-re:dynamic-analysis) - if safe
    └─ Syscalls, network, file access
 
-4. Synthesis (binary-re-synthesis)
+4. Synthesis (binary-re:synthesis)
    └─ Structured report with evidence
 ```
 
@@ -289,7 +290,7 @@ qemu-arm -L /usr/arm-linux-gnueabihf -strace ./binary
 
 | Situation | Action |
 |-----------|--------|
-| Tool not found | Use `binary-re-tool-setup` skill |
+| Tool not found | Use `binary-re:tool-setup` skill |
 | Wrong architecture | Re-run triage, verify file output |
 | QEMU fails | Try Qiling, Unicorn, or on-device |
 | Analysis timeout | Reduce scope, use `aa` not `aaa` |

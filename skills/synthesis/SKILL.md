@@ -1,6 +1,6 @@
 ---
 name: binary-re:synthesis
-description: Use when ready to document findings, generate a report, or summarize binary analysis results. Compiles analysis findings into structured reports - correlates facts from triage/static/dynamic phases, validates hypotheses, generates documentation with evidence chains. Keywords - "summarize findings", "generate report", "document analysis", "what did we find", "write up results", "export findings"
+description: "Compiles binary analysis findings into structured reports — correlates facts from triage, static, and dynamic phases, validates hypotheses against evidence, and produces traceable documentation. Use when ready to summarize findings, generate a report, document what a binary does, or prepare results for handoff or archival."
 ---
 
 # Analysis Synthesis (Phase 5)
@@ -350,19 +350,7 @@ See template above.
 
 ### STIX/TAXII (for threat intelligence)
 
-If binary is potentially malicious, format findings for sharing:
-
-```json
-{
-  "type": "malware",
-  "spec_version": "2.1",
-  "id": "malware--...",
-  "name": "telemetry-client",
-  "malware_types": ["spyware"],
-  "capabilities": ["exfiltrates-data"],
-  "implementation_languages": ["c"]
-}
-```
+For STIX/TAXII threat intelligence formatting when binary is potentially malicious, read references/stix-taxii.md.
 
 ## Next Steps
 
