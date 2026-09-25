@@ -104,7 +104,7 @@ The skill asks for confirmation before:
 ## Documentation
 
 - [CLAUDE.md](./CLAUDE.md) -- detailed skill reference
-- [skills/SKILL.md](./skills/SKILL.md) -- full workflow documentation
+- [skills/binary-re/SKILL.md](./skills/binary-re/SKILL.md) -- full workflow documentation
 
 ---
 
