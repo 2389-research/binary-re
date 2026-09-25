@@ -197,12 +197,12 @@ User: "I have a binary from a security camera. ARM, probably BusyBox-based."
 
 Claude:
 1. Search episodic memory for previous analysis (none found)
-2. Triage phase (binary-re-triage auto-detects)
+2. Triage phase (binary-re:triage auto-detects)
    - Identify: ARM 32-bit, musl libc, libcurl+libssl
    - Record: [BINARY-RE:triage] camera_daemon (sha256: abc...)
    - Hypothesis: "Network client" (confidence: 0.6)
 
-3. Static analysis (binary-re-static-analysis auto-detects)
+3. Static analysis (binary-re:static-analysis auto-detects)
    - Find functions calling curl_easy_perform
    - Locate URL strings
    - Record: [BINARY-RE:static] ... FACT: URL "api.vendor.com"
@@ -211,11 +211,11 @@ Claude:
 4. Ask human: "Ready to run under QEMU with network blocked?"
    - Human approves
 
-5. Dynamic analysis (binary-re-dynamic-analysis auto-detects)
+5. Dynamic analysis (binary-re:dynamic-analysis auto-detects)
    - Observe connect() attempts, file reads
    - Record: [BINARY-RE:dynamic] ... FACT: connects to 1.2.3.4:443
 
-6. Synthesis (binary-re-synthesis auto-detects)
+6. Synthesis (binary-re:synthesis auto-detects)
    - Generate structured report
    - Record: [BINARY-RE:synthesis] ... CONFIRMED: telemetry client
 

@@ -1,6 +1,6 @@
 ---
 name: binary-re:dynamic-analysis
-description: Use when you need to run a binary, trace execution, or observe runtime behavior. Runtime analysis via QEMU emulation, GDB debugging, and Frida hooking - syscall tracing (strace), breakpoints, memory inspection, function interception. Keywords - "run binary", "execute", "debug", "trace syscalls", "set breakpoint", "qemu", "gdb", "frida", "strace", "watch memory"
+description: "Observes runtime behavior of binaries via QEMU emulation, GDB debugging, and Frida hooking — syscall tracing, breakpoints, memory inspection, and function interception. Use when running, tracing, or debugging a binary, verifying hypotheses from static analysis, or watching actual syscalls, network calls, or file access; requires human approval before any execution."
 ---
 
 # Dynamic Analysis (Phase 4)
@@ -203,169 +203,17 @@ gdb-multiarch -batch -x analyze.gdb ./binary
 
 ## Option C: Frida for Function Hooking
 
-**Intercept function calls without modifying binary.**
-
-⚠️ **Architecture Constraint:** Frida requires native-arch execution. It **cannot** attach to QEMU-user targets.
-
-| Scenario | Works? | Alternative |
-|----------|--------|-------------|
-| Native binary (x86_64 on x86_64) | ✅ | - |
-| Cross-arch under QEMU-user | ❌ | Use on-device frida-server |
-| Docker native-arch container | ✅ | - |
-| Docker cross-arch (emulated) | ❌ | Use on-device frida-server |
-
-For cross-arch Frida, deploy `frida-server` to the target device:
-```bash
-# On target device:
-./frida-server &
-
-# On host:
-frida -H device:27042 -f ./binary -l hook.js --no-pause
-```
-
-### Basic Hook
-
-```javascript
-// hook_connect.js
-Interceptor.attach(Module.findExportByName(null, "connect"), {
-  onEnter: function(args) {
-    console.log("[connect] Called");
-    var sockaddr = args[1];
-    var family = sockaddr.readU16();
-    if (family == 2) { // AF_INET
-      var port = sockaddr.add(2).readU16();
-      var ip = sockaddr.add(4).readByteArray(4);
-      console.log("  Port: " + ((port >> 8) | ((port & 0xff) << 8)));
-      console.log("  IP: " + new Uint8Array(ip).join("."));
-    }
-  },
-  onLeave: function(retval) {
-    console.log("  Return: " + retval);
-  }
-});
-```
-
-```bash
-# Run with Frida
-frida -f ./binary -l hook_connect.js --no-pause
-```
-
-### Tracing All Calls to Library
-
-```javascript
-// trace_libcurl.js
-var libcurl = Process.findModuleByName("libcurl.so.4");
-if (libcurl) {
-  libcurl.enumerateExports().forEach(function(exp) {
-    if (exp.type === "function") {
-      Interceptor.attach(exp.address, {
-        onEnter: function(args) {
-          console.log("[" + exp.name + "] called");
-        }
-      });
-    }
-  });
-}
-```
-
-### Memory Inspection
-
-```javascript
-// dump_memory.js
-var base = Module.findBaseAddress("binary");
-console.log("Base: " + base);
-
-// Dump region
-var data = base.add(0x1000).readByteArray(256);
-console.log(hexdump(data, { offset: 0, length: 256 }));
-```
+For Frida setup, architecture constraints, hook examples, and platform-specific instrumentation guides, read references/frida-setup.md.
 
 ## Option D: Docker-Based Cross-Architecture (macOS)
 
-**Use Docker for cross-arch execution when native QEMU unavailable.**
-
-### ARM32 Binary on macOS
-
-```bash
-docker run --rm --platform linux/arm/v7 \
-  -v ~/code/samples:/work:ro \
-  arm32v7/debian:bullseye-slim \
-  sh -c '
-    # Fix linker path mismatch (common issue)
-    ln -sf /lib/ld-linux-armhf.so.3 /lib/ld-linux.so.3 2>/dev/null || true
-
-    # Install dependencies if needed (check rabin2 -l output)
-    apt-get update -qq && apt-get install -qq -y libcap2 libacl1 2>/dev/null
-
-    # Run with library debug output (strace alternative)
-    LD_DEBUG=libs /work/binary args
-  '
-```
-
-### ARM64 Binary on macOS
-
-```bash
-docker run --rm --platform linux/arm64 \
-  -v ~/code/samples:/work:ro \
-  arm64v8/debian:bullseye-slim \
-  sh -c 'LD_DEBUG=libs /work/binary args'
-```
-
-### x86 32-bit Binary on macOS
-
-```bash
-docker run --rm --platform linux/i386 \
-  -v ~/code/samples:/work:ro \
-  i386/debian:bullseye-slim \
-  sh -c '/work/binary args'
-```
-
-### Tracing Limitations in Docker/QEMU User-Mode
-
-| Method | Works? | Alternative |
-|--------|--------|-------------|
-| strace | ❌ (ptrace not implemented) | `LD_DEBUG=files,libs` |
-| ltrace | ❌ (same reason) | Direct observation or Frida |
-| gdb | ✓ (with QEMU `-g` flag) | N/A |
-
-### LD_DEBUG Options (strace alternative)
-
-```bash
-LD_DEBUG=libs     # Library search and loading
-LD_DEBUG=files    # File operations during loading
-LD_DEBUG=symbols  # Symbol resolution
-LD_DEBUG=bindings # Symbol binding details
-LD_DEBUG=all      # Everything (verbose)
-```
+For Docker-based cross-architecture analysis on macOS including ARM32, ARM64, and x86-32 examples, read references/docker-setup.md.
 
 ---
 
 ## Option E: On-Device Analysis
 
-**When emulation fails or device-specific behavior needed.**
-
-### Remote GDB via gdbserver
-
-```bash
-# On target device (via SSH/ADB)
-gdbserver :1234 ./binary
-
-# On host (with port forward)
-ssh -L 1234:localhost:1234 user@device &
-gdb-multiarch -q \
-  -ex "target remote localhost:1234" \
-  ./binary
-```
-
-### Remote strace (if available)
-
-```bash
-# On target device
-strace -f -o /tmp/trace.log ./binary
-
-# Pull log
-scp user@device:/tmp/trace.log .
-```
+For on-device analysis via gdbserver and remote strace when emulation fails, read references/on-device-setup.md.
 
 ## Sandbox Configuration
 
@@ -558,6 +406,6 @@ Answered questions:
 
 ## Next Steps
 
-→ `binary-re-synthesis` to compile findings into report
+→ `binary-re:synthesis` to compile findings into report
 → Additional static analysis if new functions identified
 → Repeat with different inputs if behavior varies

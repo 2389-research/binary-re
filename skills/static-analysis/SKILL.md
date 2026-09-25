@@ -1,6 +1,6 @@
 ---
 name: binary-re:static-analysis
-description: Use when analyzing binary structure, disassembling code, or decompiling functions. Deep static analysis via radare2 (r2) and Ghidra headless - function enumeration, cross-references (xrefs), decompilation, control flow graphs. Keywords - "disassemble", "decompile", "what does this function do", "find functions", "analyze code", "r2", "ghidra", "pdg", "afl"
+description: "Performs static analysis of binary code using radare2 and Ghidra — function enumeration, cross-reference tracing, decompilation, and control flow graphs without executing the binary. Use when disassembling or decompiling code, mapping functions, tracing data flow, or building hypotheses before dynamic verification."
 ---
 
 # Static Analysis (Phases 2-3)
@@ -15,41 +15,6 @@ Understand binary structure and logic without execution. Map functions, trace da
 - To understand specific functions identified as interesting
 - When dynamic analysis is impractical or risky
 - To build hypotheses before dynamic verification
-
-## Pre-Analysis: Compare Known I/O First
-
-**CRITICAL:** Before diving into disassembly, check if known inputs/outputs exist.
-
-⚠️ **REQUIRES HUMAN APPROVAL** - Get explicit approval before any execution, even for I/O comparison.
-
-```bash
-# SAFE: Use emulation for cross-arch binaries (after human approval)
-# ARM32:
-qemu-arm -L /usr/arm-linux-gnueabihf -- ./binary < input.txt > actual.txt
-
-# ARM64:
-qemu-aarch64 -L /usr/aarch64-linux-gnu -- ./binary < input.txt > actual.txt
-
-# Docker-based (macOS/cross-arch - see dynamic-analysis Option D):
-docker run --rm --platform linux/arm/v7 -v ~/samples:/work:ro \
-  arm32v7/debian:bullseye-slim sh -c '/work/binary < /work/input.txt' > actual.txt
-
-# x86-64 native (still requires approval):
-./binary < input.txt > actual.txt
-
-# Compare outputs:
-diff expected.txt actual.txt
-cmp -l expected.txt actual.txt | head -20  # Byte-level differences
-
-# Record findings:
-# - Where does output first diverge?
-# - Does file size match? (logic bug vs truncation)
-# - What pattern appears in corruption?
-```
-
-This step often reveals the bug category before any code analysis.
-
----
 
 ## Two-Stage Approach
 
@@ -402,5 +367,5 @@ After static analysis:
 
 ## Next Steps
 
-→ `binary-re-dynamic-analysis` to verify hypotheses with runtime observation
-→ `binary-re-synthesis` if sufficient understanding reached
+→ `binary-re:dynamic-analysis` to verify hypotheses with runtime observation
+→ `binary-re:synthesis` if sufficient understanding reached
