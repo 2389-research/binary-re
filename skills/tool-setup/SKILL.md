@@ -1,6 +1,6 @@
 ---
 name: binary-re:tool-setup
-description: Use when reverse engineering tools are missing, not working, or need configuration. Installation guides for radare2 (r2), Ghidra, GDB, QEMU, Frida, binutils, and cross-compilation toolchains. Keywords - "install radare2", "setup ghidra", "r2 not found", "qemu missing", "tool not installed", "configure gdb", "cross-compiler"
+description: "Installs and configures reverse engineering tools including radare2, Ghidra, GDB, QEMU, Frida, and cross-compilation toolchains for ARM64, ARMv7, x86_64, and MIPS. Use when a tool command fails, a required tool is missing, or you need to set up a fresh analysis environment."
 ---
 
 # Tool Setup
